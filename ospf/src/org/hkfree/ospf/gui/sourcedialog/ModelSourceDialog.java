@@ -39,6 +39,8 @@ import org.hkfree.ospf.model.Constants;
 import org.hkfree.ospf.setting.AppSettings;
 import org.hkfree.ospf.tools.DateUtil;
 import org.hkfree.ospf.tools.Factory;
+import javax.swing.Action;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 /**
  * Třída představující dialog výběru vstupních dat pro načtení
@@ -86,6 +88,12 @@ public class ModelSourceDialog extends JDialog {
     private int countDays = 0;
     private AppSettings settings = null;
     private static final Dimension MAX_SIZE_SCROLL = new Dimension(400, 300);
+    private JTextField tfAddress;
+    private JTextField tfPort4;
+    private JTextField tfPort6;
+    private JTextField tfUsername;
+    private JTextField tfTimeout;
+    private JTextField tfPassword;
 
 
     /**
@@ -163,6 +171,85 @@ public class ModelSourceDialog extends JDialog {
 	sourceTypeTabs.add(rb.getString("ssd.6"), localSourcesPanel);
 	sourceTypeTabs.add(rb.getString("ssd.9"), localSingleSourcePanel);
 	sourceTypeTabs.add(rb.getString("ssd.13"), telnetSourcePanel);
+	
+	JPanel sshSourcePanel = new JPanel();
+	sourceTypeTabs.addTab("SSH", null, sshSourcePanel, null);
+	
+	JLabel lblAddressOfRouter = new JLabel("Address of router:");
+	
+	JLabel lblPort4 = new JLabel("Port IPv4:");
+	
+	JLabel lblPort6 = new JLabel("Port IPv6:");
+	
+	JLabel lblUsername = new JLabel("Username:");
+	
+	JLabel lblTimeout = new JLabel("Timeout:");
+	
+	JLabel lblPassword = new JLabel("Password:");
+	
+	tfAddress = new JTextField();
+	tfAddress.setText((String) null);
+	tfAddress.setMaximumSize(new Dimension(350, 25));
+	
+	tfPort4 = new JTextField();
+	tfPort4.setText("null");
+	tfPort4.setMaximumSize(new Dimension(100, 25));
+	
+	tfPort6 = new JTextField();
+	tfPort6.setText("");
+	tfPort6.setMaximumSize(new Dimension(100, 25));
+	
+	tfUsername = new JTextField();
+	tfUsername.setText((String) null);
+	tfUsername.setMaximumSize(new Dimension(350, 25));
+	
+	tfTimeout = new JTextField();
+	tfTimeout.setText("0");
+	tfTimeout.setMaximumSize(new Dimension(100, 25));
+	
+	tfPassword = new JTextField();
+	tfPassword.setText((String) null);
+	tfPassword.setMaximumSize(new Dimension(350, 25));
+	GroupLayout gl_sshSourcePanel = new GroupLayout(sshSourcePanel);
+	
+	gl_sshSourcePanel.setHorizontalGroup(gl_sshSourcePanel.createSequentialGroup()
+			.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.TRAILING)
+				.addComponent(lblAddressOfRouter)
+				.addComponent(lblPort4)
+				.addComponent(lblPort6)
+				.addComponent(lblUsername)
+				.addComponent(lblPassword)
+				.addComponent(lblTimeout))
+			.addGroup(gl_sshSourcePanel.createParallelGroup()
+				.addComponent(tfAddress)
+				.addComponent(tfPort4)
+				.addComponent(tfPort6)
+				.addComponent(tfUsername)
+				.addComponent(tfPassword)
+				.addComponent(tfTimeout)));
+	gl_sshSourcePanel.setVerticalGroup(gl_sshSourcePanel.createSequentialGroup()
+			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(lblAddressOfRouter)
+				.addComponent(tfAddress))
+			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(lblPort4)
+				.addComponent(tfPort4))
+			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(lblPort6)
+				.addComponent(tfPort6))
+			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(lblUsername)
+				.addComponent(tfUsername))
+			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(lblPassword)
+				.addComponent(tfPassword))
+			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(lblTimeout)
+				.addComponent(tfTimeout)));
+	
+	gl_sshSourcePanel.setAutoCreateGaps(true);
+	gl_sshSourcePanel.setAutoCreateContainerGaps(true);
+	sshSourcePanel.setLayout(gl_sshSourcePanel);
 	sourceTypeTabs.add(rb.getString("ssd.29"), cgiSourcePanel);
 	JButton btnOk = new JButton(actListener.getActionOk());
 	JButton btnStorno = new JButton(actListener.getActionStorno());
@@ -290,7 +377,7 @@ public class ModelSourceDialog extends JDialog {
 	groupWhereAdd.add(rbMapPanel);
 	groupWhereAdd.add(rbNetStateWindow);
 	l.setAutoCreateContainerGaps(true);
-	l.setAutoCreateGaps(true);
+	l.setAutoCreateGaps(true);	
 	l.setHorizontalGroup(l.createSequentialGroup()
 		.addGroup(l.createParallelGroup()
 			.addComponent(lPath)
