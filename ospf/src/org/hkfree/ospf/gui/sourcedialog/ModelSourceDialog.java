@@ -93,10 +93,10 @@ public class ModelSourceDialog extends JDialog {
     private static final Dimension MAX_SIZE_SCROLL = new Dimension(400, 300);
     private JTextField tfSshAddress;
     private JTextField tfSshPort4;
-    private JTextField tfSshPort6;
     private JTextField tfSshUsername;
     private JTextField tfSshTimeout;
     private JTextField tfSshPassword;
+    private JTextField tfSshMaintPassword;
 
 
     /**
@@ -419,55 +419,55 @@ public class ModelSourceDialog extends JDialog {
     	sshSourcePanel = new JPanel();
     	
     	JLabel lblAddressOfRouter = new JLabel("Address of router:");
-    	JLabel lblPort4 = new JLabel("Port IPv4:");   	
-    	JLabel lblPort6 = new JLabel("Port IPv6:");
+    	JLabel lblPort4 = new JLabel("Port IPv4:");
     	JLabel lblUsername = new JLabel("Username:");   	
-    	JLabel lblTimeout = new JLabel("Timeout:");
-    	JLabel lblPassword = new JLabel("Password:");
+    	JLabel lblTimeout = new JLabel("Timeout (ms):");
+    	JLabel lblSshPassword = new JLabel("SSH Password:");
+    	JLabel lblSshMaintPassword = new JLabel("ROX Maint. Password:");
     	JLabel lblType = new JLabel("Type:");
     	
     	tfSshAddress = new JTextField();
-    	tfSshAddress.setText((String) null);
+    	tfSshAddress.setText("192.168.0.1");
     	tfSshAddress.setMaximumSize(new Dimension(350, 25));
     	tfSshPort4 = new JTextField();
-    	tfSshPort4.setText("null");
+    	tfSshPort4.setText("22");
     	tfSshPort4.setMaximumSize(new Dimension(100, 25));
-    	tfSshPort6 = new JTextField();
-    	tfSshPort6.setText("");
-    	tfSshPort6.setMaximumSize(new Dimension(100, 25));
     	tfSshUsername = new JTextField();
-    	tfSshUsername.setText((String) null);
+    	tfSshUsername.setText("admin");
     	tfSshUsername.setMaximumSize(new Dimension(350, 25));
     	tfSshTimeout = new JTextField();
-    	tfSshTimeout.setText("0");
-    	tfSshTimeout.setMaximumSize(new Dimension(100, 25));
+    	tfSshTimeout.setText("5000");
+    	tfSshTimeout.setMaximumSize(new Dimension(350, 25));
     	tfSshPassword = new JTextField();
-    	tfSshPassword.setText((String) null);
+    	tfSshPassword.setText("admin");
     	tfSshPassword.setMaximumSize(new Dimension(350, 25));
+    	tfSshMaintPassword = new JTextField();
+    	tfSshMaintPassword.setText("admin");
+    	tfSshMaintPassword.setMaximumSize(new Dimension(350, 25));
     	JComboBox comboSshType = new JComboBox();
-    	comboSshType.setModel(new DefaultComboBoxModel(new String[] {"RUGGEDCOM", "CISCO"}));
+    	comboSshType.setModel(new DefaultComboBoxModel(new String[] {"RUGGEDCOM"}));
     	comboSshType.setSelectedIndex(0);
     	GroupLayout gl_sshSourcePanel = new GroupLayout(sshSourcePanel);
     	gl_sshSourcePanel.setHorizontalGroup(
-    		gl_sshSourcePanel.createParallelGroup(Alignment.TRAILING)
-    			.addGroup(Alignment.LEADING, gl_sshSourcePanel.createSequentialGroup()
+    		gl_sshSourcePanel.createParallelGroup(Alignment.LEADING)
+    			.addGroup(gl_sshSourcePanel.createSequentialGroup()
     				.addContainerGap()
     				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.TRAILING)
     					.addComponent(lblAddressOfRouter)
     					.addComponent(lblPort4)
-    					.addComponent(lblPort6)
     					.addComponent(lblUsername)
+    					.addComponent(lblSshPassword)
+    					.addComponent(lblSshMaintPassword)
     					.addComponent(lblTimeout)
-    					.addComponent(lblPassword)
     					.addComponent(lblType))
     				.addGap(4)
     				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.LEADING)
     					.addComponent(tfSshAddress, 350, 350, 350)
     					.addComponent(tfSshPort4, 100, 100, 100)
-    					.addComponent(tfSshPort6, 100, 100, 100)
     					.addComponent(tfSshUsername, 350, 350, 350)
     					.addComponent(tfSshPassword, 350, 350, 350)
-    					.addComponent(tfSshTimeout, 100, 491, Short.MAX_VALUE)
+    					.addComponent(tfSshMaintPassword, 350, 350, 350)
+    					.addComponent(tfSshTimeout, 350, 350, 350)
     					.addGroup(gl_sshSourcePanel.createSequentialGroup()
     						.addComponent(comboSshType, GroupLayout.PREFERRED_SIZE, 109, GroupLayout.PREFERRED_SIZE)
     						.addContainerGap())))
@@ -482,14 +482,14 @@ public class ModelSourceDialog extends JDialog {
     					.addComponent(lblPort4)
     					.addComponent(tfSshPort4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
     				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
-    					.addComponent(lblPort6)
-    					.addComponent(tfSshPort6, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
     					.addComponent(lblUsername)
     					.addComponent(tfSshUsername, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
     				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
-    					.addComponent(lblPassword)
+    					.addComponent(lblSshPassword)
     					.addComponent(tfSshPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
+    					.addComponent(lblSshMaintPassword)
+    					.addComponent(tfSshMaintPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
     				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
     					.addComponent(lblTimeout)
     					.addComponent(tfSshTimeout, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
@@ -826,20 +826,16 @@ public class ModelSourceDialog extends JDialog {
     private void applySSHSettings() throws Exception {
 		settings.clearFilePaths();
 		settings.addFilePath("ospf_data_network");//TODO: what to do here
-		
+		settings.telnetUrl = tfSshAddress.getText();
 		try {
 		    settings.telnetPortIPv4 = Integer.valueOf(tfSshPort4.getText());
-		    if (tfTelnetPortIPv6.getText().isEmpty()) {
-			settings.telnetPortIPv6 = null;
-		    } else {
-			settings.telnetPortIPv6 = Integer.valueOf(tfSshPort6.getText());
-		    }
 		    settings.telnetTimeout = Integer.valueOf(tfSshTimeout.getText());
-		    settings.SshUsername = tfSshUsername.getText();
 		} catch (Exception e) {
 		    throw new Exception("ssh port parse error");
 		}
+		settings.SshUsername = tfSshUsername.getText();
 		settings.telnetPassword = tfSshPassword.getText();
+		settings.roxMaintPassword = tfSshMaintPassword.getText();
 		settings.setDataSourceType(Constants.SSH);
 		loadDialogConfirmed = true;
     }

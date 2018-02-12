@@ -49,6 +49,7 @@ public class AppSettings {
     public EDGE_SHAPER edgeShaper; // =0
     public String lltdUrl; // =http://ospf-visualiser.wz.cz/
     public boolean showAddedModel; // =false
+	public String roxMaintPassword;
 
 
     /**

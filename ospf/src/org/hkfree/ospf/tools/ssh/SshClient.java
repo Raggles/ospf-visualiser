@@ -1,28 +1,24 @@
 package org.hkfree.ospf.tools.ssh;
 
+import static net.sf.expectit.matcher.Matchers.contains;
 import net.schmizz.sshj.SSHClient;
-import net.schmizz.sshj.common.IOUtils;
 import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.connection.channel.direct.Session.Command;
+import net.schmizz.sshj.connection.channel.direct.Session.Shell;
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
+import net.sf.expectit.Expect;
+import net.sf.expectit.ExpectBuilder;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 public class SshClient {
 	
-    private OutputStream _os = null;
-    private InputStream _is = null;
-    private Socket _socket;
-    private String host = null;
-    private int port;
-    private int timeout;
-    private String username = null;
-    private String password = null;
-    private StringBuilder _sb = null;
-	
-	public SshClient(String host, int port, String username, String password, int timeout) {
+    private String host = "192.168.0.1";
+    private int port = 22;
+    private int timeout = 5000;
+    private String username = "admin";
+    private String password = "admin";
+    
+    public SshClient(String host, int port, String username, String password, int timeout) {
 		this.username = username;
 		this.port = port;
 		this.password = password;
@@ -30,26 +26,48 @@ public class SshClient {
 		this.timeout = timeout;
 	}
 	
-	public StringBuilder QuesryOspfStatus() throws IOException {
-        //TODO: Implement me.
+	public String RoxQuesryOspfStatus(String maintPassword) throws IOException {
+		StringBuilder sb = new StringBuilder();
 		final SSHClient ssh = new SSHClient();
+		ssh.addHostKeyVerifier(new PromiscuousVerifier());
         ssh.loadKnownHosts();
 
-        ssh.connect("localhost");
+        ssh.connect(host, port);
         try {
-            ssh.authPublickey(System.getProperty("user.name"));
+            ssh.authPassword(username, password);
             final Session session = ssh.startSession();
+            
+            session.allocateDefaultPTY();
+            Shell shell = session.startShell();
+            Expect expect = new ExpectBuilder()
+                    .withOutput(shell.getOutputStream())
+                    .withInputs(shell.getInputStream(), shell.getErrorStream())
+                    .withTimeout(timeout, TimeUnit.MILLISECONDS)
+                    .build();
             try {
-                final Command cmd = session.exec("show routing status ospf");
-                System.out.println(IOUtils.readFully(cmd.getInputStream()).toString());
-                cmd.join(5, TimeUnit.SECONDS);
-                System.out.println("\n** exit status: " + cmd.getExitStatus());
+                
+                expect.sendLine("maint-login");
+                expect.expect(contains("Password:"));
+                expect.sendLine(maintPassword);
+                expect.expect(contains("~#"));
+                expect.sendLine("vtysh -c \"show ip ospf database network\"");
+                String net = expect.expect(contains("~#")).getBefore();
+                expect.sendLine("vtysh -c \"show ip ospf database router\"");
+                String router = expect.expect(contains("~#")).getBefore();
+                expect.sendLine("vtysh -c \"show ip ospf database external\"");
+                String external = expect.expect(contains("~#")).getBefore();
+                expect.sendLine("exit");
+                sb.append(net.replace("\r\r\n", "\r\n"));
+                sb.append(router.replace("\r\r\n", "\r\n"));
+                sb.append(external.replace("\r\r\n", "\r\n"));
             } finally {
                 session.close();
+                ssh.close();
+                expect.close();
             }
         } finally {
             ssh.disconnect();
         }
-        return null;
+        return sb.toString();
     }
 }
