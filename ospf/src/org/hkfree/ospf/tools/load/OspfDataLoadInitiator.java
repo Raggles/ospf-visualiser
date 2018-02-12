@@ -76,6 +76,9 @@ public class OspfDataLoadInitiator {
 	    case Constants.TELNET:
 		loadDataViaTelnet(ospfModel, sourcePath);
 		break;
+	    case Constants.SSH:
+			loadDataViaSsh(ospfModel, sourcePath);
+			break;
 	    case Constants.CGI:
 		loadDataFromCgiScript(ospfModel, sourcePath);
 		break;
@@ -103,7 +106,7 @@ public class OspfDataLoadInitiator {
 		    FileReader frdr = new FileReader(f);
 		    inBufRd = new BufferedReader(frdr);
 		    winManager.getOwner().getStateDialog().addText(rb.getString("stated.7"));
-		    OspfLoader.getTopologyFromData(model, inBufRd);
+		    OspfLoader.getTopologyFromCiscoData(model, inBufRd);
 		    winManager.getOwner().getStateDialog().operationSucceeded();
 		} else {
 		    winManager.getOwner().getStateDialog().addText(rb.getString("stated.7"));
@@ -128,7 +131,7 @@ public class OspfDataLoadInitiator {
 		    while ((entry = zipInStream.getNextEntry()) != null) {
 			if (entry.getName().equals(Constants.FILENAME_OSPF_DUMP)) {
 			    winManager.getOwner().getStateDialog().addText(rb.getString("stated.7"));
-			    OspfLoader.getTopologyFromData(model, inBufRd);
+			    OspfLoader.getTopologyFromCiscoData(model, inBufRd);
 			    winManager.getOwner().getStateDialog().operationSucceeded();
 			}
 		    }
@@ -178,7 +181,7 @@ public class OspfDataLoadInitiator {
 		while ((entry = zipInStream.getNextEntry()) != null) {
 		    if (entry.getName().equals(Constants.FILENAME_OSPF_DUMP)) {
 			winManager.getOwner().getStateDialog().addText(rb.getString("stated.7"));
-			OspfLoader.getTopologyFromData(model, inBfrdRdr);
+			OspfLoader.getTopologyFromCiscoData(model, inBfrdRdr);
 			winManager.getOwner().getStateDialog().operationSucceeded();
 		    }
 		}
@@ -460,7 +463,7 @@ public class OspfDataLoadInitiator {
 	winManager.getOwner().getStateDialog().operationSucceeded();
 	// nacteni modelu z prijatych dat
 	winManager.getOwner().getStateDialog().addText(rb.getString("stated.1"));
-	OspfLoader.getTopologyFromData(ospfModel, new BufferedReader(new StringReader(data.toString())));
+	OspfLoader.getTopologyFromCiscoData(ospfModel, new BufferedReader(new StringReader(data.toString())));
 	winManager.getOwner().getStateDialog().operationSucceeded();
 	// nacteni nazvu routeru
 	winManager.getOwner().getStateDialog().addText(rb.getString("stated.3"));
@@ -476,6 +479,55 @@ public class OspfDataLoadInitiator {
 	ospfModel.setModelName(formatter.format(date) + "_telnet");
     }
 
+    /**
+     * Stáhne data přes telnet
+     * @param ospfModel
+     * @param sourcePath
+     * @throws TelnetException
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private void loadDataViaSsh(OspfModel ospfModel, String sourcePath) throws IOException, TelnetException,
+	    InterruptedException {
+    	//TODO: Implement this
+	StringBuilder data = new StringBuilder();
+	TelnetClient tc = null;
+	winManager.getOwner().getStateDialog().addText(rb.getString("stated.0"));
+	tc = new TelnetClient(settings.telnetUrl, settings.telnetPortIPv4, settings.telnetPassword,
+		settings.telnetTimeout);
+	tc.initConnection();
+	data.append(tc.getDataIPv4());
+	tc.close();
+	// nacteni dat pro IPv6 pouze v pripade zadani portu
+	if (settings.telnetPortIPv6 != null) {
+	    try {
+		tc = new TelnetClient(settings.telnetUrl, settings.telnetPortIPv6, settings.telnetPassword,
+			settings.telnetTimeout);
+		tc.initConnection();
+		data.append(tc.getDataIPv6());
+		tc.close();
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
+	}
+	winManager.getOwner().getStateDialog().operationSucceeded();
+	// nacteni modelu z prijatych dat
+	winManager.getOwner().getStateDialog().addText(rb.getString("stated.1"));
+	OspfLoader.getTopologyFromRuggedComData(ospfModel, new BufferedReader(new StringReader(data.toString())));
+	winManager.getOwner().getStateDialog().operationSucceeded();
+	// nacteni nazvu routeru
+	winManager.getOwner().getStateDialog().addText(rb.getString("stated.3"));
+	loadNames(ospfModel);
+	winManager.getOwner().getStateDialog().operationSucceeded();
+	// nalezeni a prirazeni suffixu z nazvu routeru
+	winManager.getOwner().getStateDialog().addText(rb.getString("stated.9"));
+	findAndSetSuffix(ospfModel);
+	winManager.getOwner().getStateDialog().operationSucceeded();
+	// nazev modelu
+	Date date = new Date(System.currentTimeMillis());
+	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd--HH-mm");
+	ospfModel.setModelName(formatter.format(date) + "_telnet");
+    }
 
     /**
      * Stáhne data ze výstupu CGI skriptu
@@ -499,7 +551,7 @@ public class OspfDataLoadInitiator {
 	    // nacteni dat
 	    winManager.getOwner().getStateDialog().addText(rb.getString("stated.1"));
 	    // OspfLoader.getTopologyFromData(model, new BufferedReader(new StringReader(sb.toString())));
-	    OspfLoader.getTopologyFromData(model, new BufferedReader(new InputStreamReader(adresa.openStream())));
+	    OspfLoader.getTopologyFromCiscoData(model, new BufferedReader(new InputStreamReader(adresa.openStream())));
 	    winManager.getOwner().getStateDialog().operationSucceeded();
 	    // nacteni nazvu routeru
 	    winManager.getOwner().getStateDialog().addText(rb.getString("stated.3"));

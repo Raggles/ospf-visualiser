@@ -41,6 +41,8 @@ import org.hkfree.ospf.tools.DateUtil;
 import org.hkfree.ospf.tools.Factory;
 import javax.swing.Action;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
 
 /**
  * Třída představující dialog výběru vstupních dat pro načtení
@@ -76,6 +78,7 @@ public class ModelSourceDialog extends JDialog {
     private JPanel telnetSourcePanel = null;
     private JPanel remoteDateToDatePanel = null;
     private JPanel cgiSourcePanel = null;
+    private JPanel sshSourcePanel = null;
     private JTextField tfCgiUrl = new JTextField();
     private JTextField tfTelnetUrl = new JTextField();
     private JTextField tfTelnetPortIPv4 = new JTextField();
@@ -88,12 +91,12 @@ public class ModelSourceDialog extends JDialog {
     private int countDays = 0;
     private AppSettings settings = null;
     private static final Dimension MAX_SIZE_SCROLL = new Dimension(400, 300);
-    private JTextField tfAddress;
-    private JTextField tfPort4;
-    private JTextField tfPort6;
-    private JTextField tfUsername;
-    private JTextField tfTimeout;
-    private JTextField tfPassword;
+    private JTextField tfSshAddress;
+    private JTextField tfSshPort4;
+    private JTextField tfSshPort6;
+    private JTextField tfSshUsername;
+    private JTextField tfSshTimeout;
+    private JTextField tfSshPassword;
 
 
     /**
@@ -166,90 +169,15 @@ public class ModelSourceDialog extends JDialog {
 	initLocalSingleSourcePanel();
 	initTelnetSourcePanel();
 	initCgiSourcePanel();
+	initSshSourcePanel();
 	sourceTypeTabs.add(rb.getString("ssd.17"), remoteDateToDatePanel);
 	sourceTypeTabs.add(rb.getString("ssd.4"), remoteSourcesPanel);
 	sourceTypeTabs.add(rb.getString("ssd.6"), localSourcesPanel);
 	sourceTypeTabs.add(rb.getString("ssd.9"), localSingleSourcePanel);
 	sourceTypeTabs.add(rb.getString("ssd.13"), telnetSourcePanel);
 	
-	JPanel sshSourcePanel = new JPanel();
 	sourceTypeTabs.addTab("SSH", null, sshSourcePanel, null);
 	
-	JLabel lblAddressOfRouter = new JLabel("Address of router:");
-	
-	JLabel lblPort4 = new JLabel("Port IPv4:");
-	
-	JLabel lblPort6 = new JLabel("Port IPv6:");
-	
-	JLabel lblUsername = new JLabel("Username:");
-	
-	JLabel lblTimeout = new JLabel("Timeout:");
-	
-	JLabel lblPassword = new JLabel("Password:");
-	
-	tfAddress = new JTextField();
-	tfAddress.setText((String) null);
-	tfAddress.setMaximumSize(new Dimension(350, 25));
-	
-	tfPort4 = new JTextField();
-	tfPort4.setText("null");
-	tfPort4.setMaximumSize(new Dimension(100, 25));
-	
-	tfPort6 = new JTextField();
-	tfPort6.setText("");
-	tfPort6.setMaximumSize(new Dimension(100, 25));
-	
-	tfUsername = new JTextField();
-	tfUsername.setText((String) null);
-	tfUsername.setMaximumSize(new Dimension(350, 25));
-	
-	tfTimeout = new JTextField();
-	tfTimeout.setText("0");
-	tfTimeout.setMaximumSize(new Dimension(100, 25));
-	
-	tfPassword = new JTextField();
-	tfPassword.setText((String) null);
-	tfPassword.setMaximumSize(new Dimension(350, 25));
-	GroupLayout gl_sshSourcePanel = new GroupLayout(sshSourcePanel);
-	
-	gl_sshSourcePanel.setHorizontalGroup(gl_sshSourcePanel.createSequentialGroup()
-			.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.TRAILING)
-				.addComponent(lblAddressOfRouter)
-				.addComponent(lblPort4)
-				.addComponent(lblPort6)
-				.addComponent(lblUsername)
-				.addComponent(lblPassword)
-				.addComponent(lblTimeout))
-			.addGroup(gl_sshSourcePanel.createParallelGroup()
-				.addComponent(tfAddress)
-				.addComponent(tfPort4)
-				.addComponent(tfPort6)
-				.addComponent(tfUsername)
-				.addComponent(tfPassword)
-				.addComponent(tfTimeout)));
-	gl_sshSourcePanel.setVerticalGroup(gl_sshSourcePanel.createSequentialGroup()
-			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(lblAddressOfRouter)
-				.addComponent(tfAddress))
-			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(lblPort4)
-				.addComponent(tfPort4))
-			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(lblPort6)
-				.addComponent(tfPort6))
-			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(lblUsername)
-				.addComponent(tfUsername))
-			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(lblPassword)
-				.addComponent(tfPassword))
-			.addGroup(gl_sshSourcePanel.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(lblTimeout)
-				.addComponent(tfTimeout)));
-	
-	gl_sshSourcePanel.setAutoCreateGaps(true);
-	gl_sshSourcePanel.setAutoCreateContainerGaps(true);
-	sshSourcePanel.setLayout(gl_sshSourcePanel);
 	sourceTypeTabs.add(rb.getString("ssd.29"), cgiSourcePanel);
 	JButton btnOk = new JButton(actListener.getActionOk());
 	JButton btnStorno = new JButton(actListener.getActionStorno());
@@ -486,6 +414,95 @@ public class ModelSourceDialog extends JDialog {
 			.addComponent(tfTelnetTimeout)));
     }
 
+    
+    public void initSshSourcePanel() {
+    	sshSourcePanel = new JPanel();
+    	
+    	JLabel lblAddressOfRouter = new JLabel("Address of router:");
+    	JLabel lblPort4 = new JLabel("Port IPv4:");   	
+    	JLabel lblPort6 = new JLabel("Port IPv6:");
+    	JLabel lblUsername = new JLabel("Username:");   	
+    	JLabel lblTimeout = new JLabel("Timeout:");
+    	JLabel lblPassword = new JLabel("Password:");
+    	JLabel lblType = new JLabel("Type:");
+    	
+    	tfSshAddress = new JTextField();
+    	tfSshAddress.setText((String) null);
+    	tfSshAddress.setMaximumSize(new Dimension(350, 25));
+    	tfSshPort4 = new JTextField();
+    	tfSshPort4.setText("null");
+    	tfSshPort4.setMaximumSize(new Dimension(100, 25));
+    	tfSshPort6 = new JTextField();
+    	tfSshPort6.setText("");
+    	tfSshPort6.setMaximumSize(new Dimension(100, 25));
+    	tfSshUsername = new JTextField();
+    	tfSshUsername.setText((String) null);
+    	tfSshUsername.setMaximumSize(new Dimension(350, 25));
+    	tfSshTimeout = new JTextField();
+    	tfSshTimeout.setText("0");
+    	tfSshTimeout.setMaximumSize(new Dimension(100, 25));
+    	tfSshPassword = new JTextField();
+    	tfSshPassword.setText((String) null);
+    	tfSshPassword.setMaximumSize(new Dimension(350, 25));
+    	JComboBox comboSshType = new JComboBox();
+    	comboSshType.setModel(new DefaultComboBoxModel(new String[] {"RUGGEDCOM", "CISCO"}));
+    	comboSshType.setSelectedIndex(0);
+    	GroupLayout gl_sshSourcePanel = new GroupLayout(sshSourcePanel);
+    	gl_sshSourcePanel.setHorizontalGroup(
+    		gl_sshSourcePanel.createParallelGroup(Alignment.TRAILING)
+    			.addGroup(Alignment.LEADING, gl_sshSourcePanel.createSequentialGroup()
+    				.addContainerGap()
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.TRAILING)
+    					.addComponent(lblAddressOfRouter)
+    					.addComponent(lblPort4)
+    					.addComponent(lblPort6)
+    					.addComponent(lblUsername)
+    					.addComponent(lblTimeout)
+    					.addComponent(lblPassword)
+    					.addComponent(lblType))
+    				.addGap(4)
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.LEADING)
+    					.addComponent(tfSshAddress, 350, 350, 350)
+    					.addComponent(tfSshPort4, 100, 100, 100)
+    					.addComponent(tfSshPort6, 100, 100, 100)
+    					.addComponent(tfSshUsername, 350, 350, 350)
+    					.addComponent(tfSshPassword, 350, 350, 350)
+    					.addComponent(tfSshTimeout, 100, 491, Short.MAX_VALUE)
+    					.addGroup(gl_sshSourcePanel.createSequentialGroup()
+    						.addComponent(comboSshType, GroupLayout.PREFERRED_SIZE, 109, GroupLayout.PREFERRED_SIZE)
+    						.addContainerGap())))
+    	);
+    	gl_sshSourcePanel.setVerticalGroup(
+    		gl_sshSourcePanel.createParallelGroup(Alignment.LEADING)
+    			.addGroup(gl_sshSourcePanel.createSequentialGroup()
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
+    					.addComponent(lblAddressOfRouter)
+    					.addComponent(tfSshAddress, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
+    					.addComponent(lblPort4)
+    					.addComponent(tfSshPort4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
+    					.addComponent(lblPort6)
+    					.addComponent(tfSshPort6, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
+    					.addComponent(lblUsername)
+    					.addComponent(tfSshUsername, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
+    					.addComponent(lblPassword)
+    					.addComponent(tfSshPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
+    					.addComponent(lblTimeout)
+    					.addComponent(tfSshTimeout, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+    				.addGroup(gl_sshSourcePanel.createParallelGroup(Alignment.CENTER)
+    					.addComponent(lblType)
+    					.addComponent(comboSshType, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+    				.addContainerGap(157, Short.MAX_VALUE))
+    	);
+    	
+    	gl_sshSourcePanel.setAutoCreateGaps(true);
+    	gl_sshSourcePanel.setAutoCreateContainerGaps(true);
+    	sshSourcePanel.setLayout(gl_sshSourcePanel);
+    }
 
     /**
      * Inicializace panelu pro vyber dat z lokalni slozky
@@ -802,23 +819,47 @@ public class ModelSourceDialog extends JDialog {
 	loadDialogConfirmed = true;
     }
 
+    /**
+     * Apply SSH settings
+     * @throws Exception
+     */
+    private void applySSHSettings() throws Exception {
+		settings.clearFilePaths();
+		settings.addFilePath("ospf_data_network");//TODO: what to do here
+		
+		try {
+		    settings.telnetPortIPv4 = Integer.valueOf(tfSshPort4.getText());
+		    if (tfTelnetPortIPv6.getText().isEmpty()) {
+			settings.telnetPortIPv6 = null;
+		    } else {
+			settings.telnetPortIPv6 = Integer.valueOf(tfSshPort6.getText());
+		    }
+		    settings.telnetTimeout = Integer.valueOf(tfSshTimeout.getText());
+		    settings.SshUsername = tfSshUsername.getText();
+		} catch (Exception e) {
+		    throw new Exception("ssh port parse error");
+		}
+		settings.telnetPassword = tfSshPassword.getText();
+		settings.setDataSourceType(Constants.SSH);
+		loadDialogConfirmed = true;
+    }
 
     /**
      * Aplikuje nastavení pro načtení dat z časového rozmezí
      */
     private void applyFromDateToDateSettings() {
-	settings.clearFilePaths();
-	for (int i = 0; i < model.size(); i++) {
-	    String s = (String) model.get(i);
-	    settings.addFilePath(tfZIPRemoteAddressFieldPath.getText() + s.substring(0, 10) + "/" + s + ".zip");
-	}
-	settings.countDaysBack = countDays;
-	settings.modelZipRemotePathBetween = tfZIPRemoteAddressFieldPath.getText();
-	settings.modelTimeBetween = tfTime.getText();
-	settings.fromDateToDateLoadTo = groupWhereAdd.getSelection().getActionCommand();
-	settings.setDataSourceType(Constants.REMOTE_SERVER);
-	settings.setDataType(Constants.ZIP);
-	loadDialogConfirmed = true;
+		settings.clearFilePaths();
+		for (int i = 0; i < model.size(); i++) {
+		    String s = (String) model.get(i);
+		    settings.addFilePath(tfZIPRemoteAddressFieldPath.getText() + s.substring(0, 10) + "/" + s + ".zip");
+		}
+		settings.countDaysBack = countDays;
+		settings.modelZipRemotePathBetween = tfZIPRemoteAddressFieldPath.getText();
+		settings.modelTimeBetween = tfTime.getText();
+		settings.fromDateToDateLoadTo = groupWhereAdd.getSelection().getActionCommand();
+		settings.setDataSourceType(Constants.REMOTE_SERVER);
+		settings.setDataType(Constants.ZIP);
+		loadDialogConfirmed = true;
     }
 
 
@@ -826,11 +867,11 @@ public class ModelSourceDialog extends JDialog {
      * Aplikuje nastavení pro načtení dat z výstupu CGI skriptu
      */
     private void applyCgiSettings() {
-	settings.clearFilePaths();
-	settings.addFilePath("ospf_data_network");
-	settings.cgiUrl = tfCgiUrl.getText();
-	settings.setDataSourceType(Constants.CGI);
-	loadDialogConfirmed = true;
+		settings.clearFilePaths();
+		settings.addFilePath("ospf_data_network");
+		settings.cgiUrl = tfCgiUrl.getText();
+		settings.setDataSourceType(Constants.CGI);
+		loadDialogConfirmed = true;
     }
 
 
@@ -839,26 +880,29 @@ public class ModelSourceDialog extends JDialog {
      * @throws Exception vyjimka pri chybnem nastaveni zdroje
      */
     public void applySettings() throws Exception {
-	switch (sourceTypeTabs.getSelectedIndex()) {
-	    case Constants.FROM_DATE_TO_DATE:
-		applyFromDateToDateSettings();
-		break;
-	    case Constants.ZIP_SERVER:
-		applyRemoteSettings();
-		break;
-	    case Constants.ZIP_LOCAL:
-		applyLocalSettings();
-		break;
-	    case Constants.LOCAL_SOURCES:
-		applyLocalSingleSettings();
-		break;
-	    case Constants.TELNET:
-		applyTelnetSettings();
-		break;
-	    case Constants.CGI:
-		applyCgiSettings();
-		break;
+		switch (sourceTypeTabs.getSelectedIndex()) {
+		    case Constants.FROM_DATE_TO_DATE:
+				applyFromDateToDateSettings();
+				break;
+		    case Constants.ZIP_SERVER:
+				applyRemoteSettings();
+				break;
+		    case Constants.ZIP_LOCAL:
+				applyLocalSettings();
+				break;
+		    case Constants.LOCAL_SOURCES:
+				applyLocalSingleSettings();
+				break;
+		    case Constants.TELNET:
+				applyTelnetSettings();
+				break;
+		    case Constants.SSH:
+				applySSHSettings();
+				break;
+		    case Constants.CGI:
+		    	applyCgiSettings();
+		    	break;
+		}
+		settings.loadDataTypIndex = sourceTypeTabs.getSelectedIndex();
 	}
-	settings.loadDataTypIndex = sourceTypeTabs.getSelectedIndex();
-    }
 }

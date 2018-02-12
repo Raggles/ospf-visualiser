@@ -39,6 +39,7 @@ public class AppSettings {
     public String telnetPassword;// =free
     public int telnetTimeout;// =5000
     public String telnetRDNSServer;// =lab.hkfree.org
+    public String SshUsername;// 
     public LANGUAGE language;
     public String modelTimeBetween;// =20-00
     public int countDaysBack; // =7
