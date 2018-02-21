@@ -30,7 +30,6 @@ public class SshClient {
 		StringBuilder sb = new StringBuilder();
 		final SSHClient ssh = new SSHClient();
 		ssh.addHostKeyVerifier(new PromiscuousVerifier());
-        ssh.loadKnownHosts();
 
         ssh.connect(host, port);
         try {
